@@ -69,7 +69,6 @@ namespace nst {
 
     //  Linked list with bidirectional iterator support.
     //  *   Move constructor invalidates the 'end' iterator.
-    //template <class TOwner, LinkedListNode* (*TGetNode)(TOwner* pOwner)>
     template <class TOwner, LinkedListNode (TOwner::* TMemberPtr)>
     class LinkedListBI
     {
@@ -77,6 +76,17 @@ namespace nst {
         typedef LinkedListBI<TOwner, TMemberPtr> This;
         typedef LinkedListNode Node;
 
+    private:
+        static size_t GetFieldOffset()
+        {
+            char* const pBase = (char*)(uintptr_t)0x100000; // any non-NULL value to induce pointer arithmetic
+            TOwner* const pOwner = (TOwner*)pBase;
+            char* const pField = (char*)(&(pOwner->*TMemberPtr));
+            const size_t fieldOffset = pField - pBase;
+            return fieldOffset;
+        }
+
+    public:
         class iterator
         {
         public:
@@ -91,17 +101,9 @@ namespace nst {
             friend class This;
 
         private:
-            static size_t GetFieldOffset()
-            {
-                char* const pBase = (char*)(uintptr_t)0x100000; // any non-NULL value to induce pointer arithmetic
-                TOwner* const pOwner = (TOwner*)pBase;
-                char* const pField = (char*)(&(pOwner->*TMemberPtr));
-                const size_t fieldOffset = pField - pBase;
-                return fieldOffset;
-            }
             TOwner* ToOwnerPtr() const
             {
-                const size_t fieldOffset = GetFieldOffset();
+                const size_t fieldOffset = This::GetFieldOffset();
                 TOwner* pOwner = (TOwner*)((char*)m_pNode - fieldOffset);
                 return pOwner;
             }
@@ -196,17 +198,9 @@ namespace nst {
             const Node* m_pNode;
 
         private:
-            static size_t GetFieldOffset()
-            {
-                char* const pBase = (char*)(uintptr_t)0x100000; // any non-NULL value to induce pointer arithmetic
-                TOwner* const pOwner = (TOwner*)pBase;
-                char* const pField = (char*)(&(pOwner->*TMemberPtr));
-                const size_t fieldOffset = pField - pBase;
-                return fieldOffset;
-            }
             const TOwner* ToOwnerPtr() const
             {
-                const size_t fieldOffset = GetFieldOffset();
+                const size_t fieldOffset = This::GetFieldOffset();
                 const TOwner* pOwner = (const TOwner*)((const char*)m_pNode - fieldOffset);
                 return pOwner;
             }
