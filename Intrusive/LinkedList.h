@@ -111,9 +111,32 @@ namespace nst {
                 : m_pNode{}
             {
             }
+            iterator(const iterator& rhs)
+                : m_pNode(rhs.m_pNode)
+            {
+            }
             iterator(Node* pNode)
                 : m_pNode(pNode)
             {
+            }
+            iterator(TOwner* pOwner)
+                : m_pNode(&(pOwner->*TMemberPtr))
+            {
+            }
+            iterator& operator=(const iterator& rhs)
+            {
+                m_pNode = rhs.m_pNode;
+                return *this;
+            }
+            iterator& operator=(Node* pNode)
+            {
+                m_pNode = pNode;
+                return *this;
+            }
+            iterator& operator=(TOwner* pOwner)
+            {
+                m_pNode = &(pOwner->*TMemberPtr);
+                return *this;
             }
 
             Node* Node() const
@@ -193,18 +216,31 @@ namespace nst {
                 : m_pNode{}
             {
             }
-            const_iterator(const Node* pNode)
-                : m_pNode(pNode)
-            {
-            }
             const_iterator(const iterator& rhs)
                 : m_pNode(rhs.m_pNode)
             {
             }
-
+            const_iterator(const Node* pNode)
+                : m_pNode(pNode)
+            {
+            }
+            const_iterator(const TOwner* pOwner)
+                : m_pNode(&(pOwner->*TMemberPtr))
+            {
+            }
             const_iterator& operator=(const const_iterator& rhs)
             {
                 m_pNode = rhs.m_pNode;
+                return *this;
+            }
+            const_iterator& operator=(const Node* pNode)
+            {
+                m_pNode = pNode;
+                return *this;
+            }
+            const_iterator& operator=(const TOwner* pOwner)
+            {
+                m_pNode = &(pOwner->*TMemberPtr);
                 return *this;
             }
             const_iterator& operator=(const iterator& rhs)
